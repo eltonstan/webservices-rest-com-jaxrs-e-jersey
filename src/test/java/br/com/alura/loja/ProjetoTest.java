@@ -1,5 +1,7 @@
 package br.com.alura.loja;
 
+import static org.junit.Assert.assertEquals;
+
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.Entity;
@@ -42,7 +44,7 @@ public class ProjetoTest {
 	}
 	
 	@Test
-	public void testaQueSuportaNovosCarrinhos() {
+	public void testaQueSuportaNovosProjetos() {
 		Client client = ClientBuilder.newClient();
 		WebTarget target = client.target("http://localhost:8080");
 		Projeto projeto = new Projeto(2l, "Novo projeto", 1986);
@@ -51,7 +53,11 @@ public class ProjetoTest {
         Entity<String> entity = Entity.entity(xml, MediaType.APPLICATION_XML);
 
         Response response = target.path("/projetos").request().post(entity);
-        Assert.assertEquals("<status>sucesso</status>", response.readEntity(String.class));
+        assertEquals(201, response.getStatus());
+        
+        String location = response.getHeaderString("Location");
+        String conteudo = client.target(location).request().get(String.class);
+        Assert.assertTrue(conteudo.contains("Novo projeto"));
 	}
 
 }
